@@ -8,6 +8,43 @@
 브라우저(8000) -> chat.py -> Ollama 서버(11434) -> qwen3:0.6b
 ```
 
+## 오늘 배운 내용
+
+- 자동화의 필요성 (반복 작업의 시간 누적과 사람의 실수)
+- Qwen + Ollama 로 로컬 AI 서비스 실행
+- 셸 스크립트 작성: shebang, 실행 권한, 작업 경로 설정
+- 종료 상태로 성공/실패 판단 (성공 = 0, 실패 = 0 이외)
+- 환경 변수(`export`)로 코드 수정 없이 실행 설정 변경
+- 조건문으로 실행 환경 점검 및 오류 안내
+
+각 항목의 상세 설명은 맨 아래 "개념 정리"에 접어두었다.
+
+## 새로 배운 명령어
+
+```bash
+# --- Ollama ---
+ollama pull qwen3:0.6b      # 모델 다운로드
+ollama list                 # 받은 모델 목록 확인
+ollama serve                # Ollama 서버 실행 (설치 시 자동 등록됨)
+
+# --- 스크립트 실행 ---
+chmod u+x start.sh          # 실행 권한 부여 (없으면 Permission denied)
+./start.sh                  # 현재 폴더의 스크립트 실행
+uname                       # OS 이름 출력 (Linux / Darwin)
+command -v python3          # 명령어 설치 여부 확인 (있으면 경로 출력)
+
+# --- 스크립트 안에서 쓰는 것 ---
+dirname "$0"                # 스크립트 자신의 디렉터리 경로
+exec python3 chat.py        # 현재 프로세스를 python3 로 교체
+export WEB_PORT="8080"      # 환경 변수 지정 (이 스크립트 안에서만 유효)
+cat > 파일명 << 'EOF'        # 여러 줄을 파일로 저장 (EOF 줄에서 입력 종료)
+
+# --- 리다이렉션 ---
+>/dev/null 2>&1             # 출력과 오류를 모두 버림
+echo "메시지" >&2            # 오류 메시지로 출력
+echo $?                     # 직전 명령의 종료 상태 (0=성공)
+```
+
 ## 실행 방법
 
 ```bash
@@ -22,6 +59,8 @@ cd ~/devops/week03/qwen-web
 ./start_with_export_2.sh
 # 브라우저에서 http://localhost:8080
 ```
+
+종료는 `Ctrl + C`. 웹 앱만 종료되고 Ollama 서버는 계속 동작한다.
 
 ## 파일 구성
 
@@ -70,6 +109,7 @@ week03/qwen-web/
 - `ollama pull qwen3:0.6b` 로 모델 다운로드 (약 522MB)
 - `b` = Billion, 파라미터 개수. 0.6b = 약 6억 개
   - 클수록 성능은 대체로 좋지만 연산량이 커져 느리고 메모리를 더 쓴다
+- 구조: 브라우저(8000) -> chat.py -> Ollama 서버(11434) -> qwen3:0.6b
 
 ### 셸 스크립트
 - `#!` (shebang): 어떤 인터프리터로 실행할지 OS에 알려주는 첫 줄
