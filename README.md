@@ -6,8 +6,10 @@
 
 - Windows 11 + WSL2 (Ubuntu)
 - Git / GitHub CLI
+- Ollama + Qwen (qwen3:0.6b)
 
 ## 주차별 내용
 
 - 1주차 - 오리엔테이션 (실습 없음)
 - [2주차 - 실습 환경 구축과 버전 관리 기초](./week02/)
+- [3주차 - 셸 스크립팅](./week03/)
