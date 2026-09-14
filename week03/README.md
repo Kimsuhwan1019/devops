@@ -1,20 +1,75 @@
 # 3주차 - 셸 스크립팅
 
-## 왜 셸 스크립트인가
+로컬에서 동작하는 AI 챗 웹앱을 셸 스크립트 한 줄로 실행할 수 있게 만들었다.
+`Qwen` 모델을 `Ollama` 로 띄우고, 파이썬 웹앱(`chat.py`)을 `start.sh` 로 감싸
+경로를 외우지 않아도 실행되도록 자동화했다.
 
+```
+브라우저(8000) -> chat.py -> Ollama 서버(11434) -> qwen3:0.6b
+```
+
+## 실행 방법
+
+```bash
+cd ~/devops/week03/qwen-web
+./start.sh
+# 브라우저에서 http://localhost:8000
+```
+
+포트를 바꿔서 실행하려면:
+
+```bash
+./start_with_export_2.sh
+# 브라우저에서 http://localhost:8080
+```
+
+## 파일 구성
+
+```
+week03/qwen-web/
+├── chat.py                  # 교수님 제공, 파이썬 표준 라이브러리만 사용
+├── start.sh                 # 실행 스크립트 (python3 설치 여부 점검 포함)
+├── start_with_export.sh     # MODEL 환경 변수 지정
+├── start_with_export_2.sh   # WEB_PORT=8080 으로 변경
+└── run_py.sh                # shebang 실습용
+```
+
+모델은 Ollama 가 따로 보관하므로 이 폴더에 두거나 푸시하지 않는다.
+
+## 실행 결과
+
+- `안녕?` -> `안녕하세요!` 정상 응답
+- 터미널 로그: `종료 사유: stop | 생성 토큰: 5 | thinking 출력 있음: False`
+  - `stop` 은 모델이 스스로 끝낸 것. `length` 면 512토큰 한도에 걸려 잘린 것
+- `start_with_export_2.sh` 실행 시 http://localhost:8080 으로 접속 확인
+- python3 가 없는 상황을 흉내내어 실행했을 때 안내 메시지 출력 + 종료 상태 1 확인
+- `Ctrl + C` 로 종료해도 Ollama 서버(11434)는 계속 살아 있음을 확인
+
+## 막혔던 부분
+
+- `python` 은 Ubuntu에 없다. `python3` 를 써야 한다.
+- 탐색기 드래그로 파일을 복사하면 `chat.py:Zone.Identifier` 가 함께 생긴다. 삭제 필요.
+- `chmod` 없이 `./start.sh` 하면 `Permission denied`.
+  파일 내용이 맞아도 실행 권한이 없으면 실행되지 않는다.
+- heredoc 에서 `<< 'EOF'` 의 따옴표를 빼면 `$0`, `$(dirname ...)` 이
+  현재 값으로 치환되어 스크립트가 망가진다.
+- nano 로 긴 파일을 갈아엎을 때는 `> README.md` 로 비우고 다시 여는 게 편하다.
+
+---
+
+<details>
+<summary><b>개념 정리</b> (클릭해서 펼치기)</summary>
+
+### 왜 셸 스크립트인가
 - 반복 작업을 손으로 하면 시간이 누적된다 (하루 10분 = 1년 약 61시간)
 - 사람은 반드시 실수한다 (오타, 순서 바뀜, 단계 생략)
 - 기계는 수백만 번을 시켜도 같은 절차로 실행한다
 
-## 오늘 배운 내용
-
-### Qwen + Ollama 로컬 AI 서비스
+### Qwen + Ollama
 - Qwen: 답변을 만드는 모델 / Ollama: 모델을 실행·관리하는 로컬 서버
 - `ollama pull qwen3:0.6b` 로 모델 다운로드 (약 522MB)
 - `b` = Billion, 파라미터 개수. 0.6b = 약 6억 개
   - 클수록 성능은 대체로 좋지만 연산량이 커져 느리고 메모리를 더 쓴다
-- 구조: 브라우저(8000) -> chat.py -> Ollama 서버(11434) -> qwen3:0.6b
-- `Ctrl + C` 로 종료되는 것은 웹 앱뿐. Ollama 서버(11434)는 계속 살아 있다
 
 ### 셸 스크립트
 - `#!` (shebang): 어떤 인터프리터로 실행할지 OS에 알려주는 첫 줄
@@ -35,7 +90,6 @@
 ### 환경 변수
 - `chat.py` 는 `os.environ.get()` 으로 MODEL, WEB_PORT, APP_NAME 을 읽음
   - 환경 변수가 있으면 그 값을, 없으면 기본값을 쓴다 -> 코드 수정 없이 설정 변경 가능
-- 스크립트 안에서 `export WEB_PORT="8080"` 하면 포트 변경
 - `export` 는 해당 스크립트 안에서만 유효, 원래 터미널은 바뀌지 않음
 - heredoc `cat > 파일 << 'EOF'` 로 여러 줄을 파일에 저장
   - 종료 표시(`EOF`)는 `END`, `FINISH` 등으로 바꿔도 된다
@@ -61,38 +115,4 @@
 | 1 | 표준 출력 (stdout) |
 | 2 | 표준 오류 (stderr) |
 
-## 파일 구성
-
-```
-week03/qwen-web/
-├── chat.py                  # 교수님 제공, 파이썬 표준 라이브러리만 사용
-├── start.sh                 # 실행 스크립트 (python3 설치 여부 점검 포함)
-├── start_with_export.sh     # MODEL 환경 변수 지정
-├── start_with_export_2.sh   # WEB_PORT=8080 으로 변경
-└── run_py.sh                # shebang 실습용
-```
-
-모델은 Ollama 가 따로 보관하므로 이 폴더에 두거나 푸시하지 않는다.
-
-## 실행 방법
-
-```bash
-cd ~/devops/week03/qwen-web
-./start.sh
-# 브라우저에서 http://localhost:8000
-```
-
-## 실행 결과
-
-- `안녕?` -> `안녕하세요!` 정상 응답
-- 터미널 로그: `종료 사유: stop | 생성 토큰: 5 | thinking 출력 있음: False`
-  - `stop` 은 모델이 스스로 끝낸 것. `length` 면 512토큰 한도에 걸려 잘린 것
-- `start_with_export_2.sh` 실행 시 http://localhost:8080 으로 접속 확인
-- python3 가 없는 상황을 흉내내어 실행했을 때 안내 메시지 출력 + 종료 상태 1 확인
-
-## 막혔던 부분
-
-- `python` 은 Ubuntu에 없다. `python3` 를 써야 한다.
-- 탐색기 드래그로 파일을 복사하면 `chat.py:Zone.Identifier` 가 함께 생긴다. 삭제 필요.
-- `chmod` 없이 `./start.sh` 하면 `Permission denied`. 파일 내용이 맞아도 실행 권한이 없으면 실행되지 않는다.
-- heredoc 에서 `<< 'EOF'` 의 따옴표를 빼면 `$0`, `$(dirname ...)` 이 현재 값으로 치환되어 스크립트가 망가진다.
+</details>
