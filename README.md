@@ -7,6 +7,7 @@
 - Windows 11 + WSL2 (Ubuntu)
 - Git / GitHub CLI
 - Ollama + Qwen (qwen3:0.6b)
+- Docker Desktop (WSL2 Integration)
 
 ## 주차별 내용
 
@@ -14,3 +15,4 @@
 - [2주차 - 실습 환경 구축과 버전 관리 기초](./week02/)
 - [3주차 - 셸 스크립팅](./week03/)
 - [4주차 - 자동화와 협업, 네트워크](./week04/)
+- [5주차 - Docker 기초와 GitHub Issue 기반 작업](./week05/)
