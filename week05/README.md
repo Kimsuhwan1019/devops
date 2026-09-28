@@ -68,7 +68,7 @@ week05/
 - 컨테이너 안 `/etc/os-release`는 `Debian GNU/Linux 13` — 호스트(Ubuntu)와 사용자 공간은 다르고 커널만 공유
 - index.html을 수정 → `<h1>Hi</h1>` → `docker rm -f` 후 재생성 → `<h1>Welcome to nginx!</h1>`로 복원
 - `test.py`: python 3.9 → `SyntaxError: invalid syntax` / python 3.12 → `two`
-- 혼자서 해보기: 8091~8093에 nginx1~3 실행, 각각 `<h1>Welcome to nginxN</h1>` 응답 확인
+- 혼자서 해보기: 8091 / 8092 / 8093 포트에 nginx1, nginx2, nginx3 실행, 각각 `<h1>Welcome to nginxN</h1>` 응답 확인
 
 | nginx1 (8091) | nginx2 (8092) | nginx3 (8093) |
 |---|---|---|
@@ -83,6 +83,8 @@ week05/
 - `docker run -d` 직후 바로 `curl -s`를 치면 빈 결과 → nginx가 뜨기 전이라 그런 것으로 추정, 잠시 후 다시 치면 정상
 - `docker rm-f`, `cd~`처럼 공백을 빼먹어 `unknown command` → 명령과 옵션 사이 공백 확인
 - `gh repo view --web`에서 `xdg-open` 에러 → WSL에 브라우저가 없어서, Windows 브라우저로 직접 열어 해결
+- Windows 드라이브(`/mnt/d`)에서 복사한 png, `test.py`가 `100755`(실행 권한)로 커밋됨 → `chmod 644`로 권한을 내리고 다시 커밋
+- PR 본문과 README에 `nginx1~3 (8091~8093)`처럼 한 줄에 `~`를 두 번 쓰면 GitHub에서 그 사이가 취소선으로 표시됨 → 수정 PR로 표현을 바꿈
 
 ---
 
