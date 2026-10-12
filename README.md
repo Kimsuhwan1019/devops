@@ -17,3 +17,4 @@
 - [4주차 - 자동화와 협업, 네트워크](./week04/)
 - [5주차 - Docker 기초와 GitHub Issue 기반 작업](./week05/)
 - [6주차 - Dockerfile과 ghcr.io 배포](./week06/)
+- [7주차 - Docker Compose와 Redis, nginx](./week07/)
