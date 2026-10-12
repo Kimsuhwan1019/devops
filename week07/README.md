@@ -84,7 +84,7 @@ devops/
 
 ## 실행 결과
 
-### 1. 재시작·down·down -v 비교 (교안 21~26p)
+### 1. 재시작·down·down -v 비교 (교안 22~27p)
 
 | 단계 | 터미널 | Pod/Host | 글 | 방문 |
 |---|---|---|---|---|
@@ -114,13 +114,13 @@ TCP 연결 성공
 
 ![network](images/05-network.png)
 
-### 3. healthcheck (교안 39p)
+### 3. healthcheck (교안 40p)
 
 `up` 할 때 redis가 `Healthy`(6.2s)가 된 다음에 web이 `Started`(6.3s)되었다. `ps`에서 둘 다 `(healthy)`.
 
 ![healthy](images/06-healthy.png)
 
-### 4. nginx + scale (교안 42~47p)
+### 4. nginx + scale (교안 43~48p)
 
 - nginx 없이 `--scale web=3` → `Bind for 0.0.0.0:8080 failed: port is already allocated`
 - nginx를 두고 web을 `expose`로 바꾼 뒤 `--scale web=3` → 5개 모두 Up
@@ -129,14 +129,14 @@ TCP 연결 성공
 
 ![scale](images/07-scale-nginx.png)
 
-### 5. config 검사와 watch (교안 48~50p)
+### 5. config 검사와 watch (교안 49~51p)
 
 - `.env`를 치우고 `config` → `required variable REDIS_PASSWORD is missing a value: 비밀번호 설정 필요`
 - watch를 켜 둔 상태에서 버튼 문구를 `방명록 남기기~!`로 저장 → 자동 rebuild 후 브라우저에 반영
 
 ![watch](images/08-watch.png)
 
-### 6. .env를 Git에 올리지 않는 이유 (교안 60p)
+### 6. .env를 Git에 올리지 않는 이유 (교안 61p)
 
 GitHub에 올라간 파일은 누구나 볼 수 있고, 나중에 파일에서 지워도 Git 이력에 남는다. 그래서 compose.yaml에는 `${REDIS_PASSWORD}`라는 빈칸만 두고 실제 값은 내 컴퓨터의 `.env`에만 둔다.
 `.gitignore`에 `.env`를 넣어 실수로 커밋하는 것을 막고, 다른 사람에게는 어떤 값이 필요한지만 `.env.example`로 알려 준다. 단, `.gitignore`는 암호화가 아니라 Git이 모른 척하게 하는 것뿐이다.
@@ -168,12 +168,12 @@ GitHub에 올라간 파일은 누구나 볼 수 있고, 나중에 파일에서 �
 - `--name web`은 컨테이너 이름, compose의 `web`은 서비스 이름 (컨테이너 이름은 `guestbook-web-1`)
 - compose.yaml 추천 순서 (규칙은 아님): image/build → command → ports/expose → environment → volumes → depends_on → healthcheck → restart → develop
 
-### 컨테이너 네트워크 (16p)
+### 컨테이너 네트워크 (17p)
 
 - compose가 프로젝트 네트워크(`guestbook_default`)를 만들고 서비스 이름을 도커 내부 DNS에 등록한다
 - web이 "redis 어디 있나?"라고 물으면 DNS가 IP를 알려 준다. IP가 바뀌어도 이름은 그대로라 상관없다
 
-### 볼륨 (24~27p)
+### 볼륨 (25~27p)
 
 - 컨테이너를 지워도 따로 만든 볼륨은 기본적으로 지워지지 않는다
 - redis의 `/data`가 볼륨 `redis-data`에 연결되어 데이터가 컨테이너 밖에 저장된다
@@ -185,7 +185,7 @@ GitHub에 올라간 파일은 누구나 볼 수 있고, 나중에 파일에서 �
 - 같은 네트워크 안의 컨테이너끼리는 이름으로 통신할 수 있다
 - 앱만 열고 DB는 내부에서만 접근하게 하는 기본적인 보안 설계
 
-### .env (33~36p)
+### .env (34~37p)
 
 | 파일 / 문법 | 하는 일 |
 |---|---|
@@ -196,7 +196,7 @@ GitHub에 올라간 파일은 누구나 볼 수 있고, 나중에 파일에서 �
 | `.gitignore`의 `.env` | 실수로 커밋하는 것을 막음 |
 | `.dockerignore`의 `.env` | `COPY . .`을 해도 이미지 안에 안 들어감 |
 
-### healthcheck (37~40p)
+### healthcheck (38~41p)
 
 - `depends_on: - redis`는 redis를 먼저 "시작"시킬 뿐이다. 시작과 준비 완료는 다르다 (식당이 문을 열었다고 바로 주문을 받을 수는 없다)
 - 이 앱은 시작할 때 딱 한 번 Redis 연결을 시도한다. 실패하면 메모리 모드가 되어 껐다 켜면 글이 사라진다
@@ -205,7 +205,7 @@ GitHub에 올라간 파일은 누구나 볼 수 있고, 나중에 파일에서 �
 - `interval: 5s`(5초마다), `timeout: 3s`(3초 안에 안 끝나면 실패), `retries: 5`(5번 연속 실패하면 unhealthy). 상태: starting → healthy / unhealthy
 - healthcheck는 실패 가능성을 줄여 줄 뿐, 실행 중 장애까지 해결하지는 않는다
 
-### scale과 nginx (41~47p)
+### scale과 nginx (42~48p)
 
 - scale-out/in(수평): 개수를 늘리고 줄임. scale-up/down(수직): 서버 한 대의 성능을 늘리고 줄임
 - web 3개가 모두 8080을 쓰려고 해서 충돌 → 앞에 문지기(nginx)를 하나 두고, web은 `expose`로 내부에서만 연다
@@ -214,7 +214,7 @@ GitHub에 올라간 파일은 누구나 볼 수 있고, 나중에 파일에서 �
 - 데이터는 redis 하나에 있으므로 어느 web으로 가도 글이 똑같다 (앱은 여러 개, DB는 한 개)
 - `docker stop`으로 직접 멈춘 컨테이너는 `restart: unless-stopped`여도 자동으로 다시 켜지지 않는다
 
-### config와 watch (48~50p)
+### config와 watch (49~51p)
 
 - `docker compose config`: `${...}`가 다 채워진 최종 설정을 보여 준다 (컨테이너는 띄우지 않음). 실제 서비스 동작까지 검증하는 것은 아니다
 - `grep -A1`(아래 1줄), `-B3`(위 3줄), `-C2`(위아래 2줄)
@@ -222,7 +222,7 @@ GitHub에 올라간 파일은 누구나 볼 수 있고, 나중에 파일에서 �
 - `develop.watch` + `action: rebuild`: 지정한 파일이 바뀌면 이미지를 다시 빌드하고 컨테이너를 재생성한다
 - `docker compose up --watch`(터미널 하나, Ctrl+C 시 컨테이너도 중지) / `docker compose watch --no-up`(이미 실행 중인 컨테이너 감시, Ctrl+C 시 watch만 종료)
 
-### 남은 고민과 요즘 도커 (51~58p, 교수님 시연)
+### 남은 고민과 요즘 도커 (52~59p, 교수님 시연)
 
 - compose는 컴퓨터 한 대 안에서만 동작한다. 여러 서버에 나눠 띄우기, 고장 시 이동, 무중단 교체는 안 됨 → Kubernetes
 - docker run(개별 컨테이너) / docker compose(단일 도커 엔진에서 여러 컨테이너) / Kubernetes(여러 컴퓨터에서 원하는 상태를 자동 유지)
