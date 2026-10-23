@@ -113,3 +113,31 @@ docker compose down -v      # 볼륨까지 삭제
 | `REDIS_HOST` | (없음) | 있으면 Redis 모드 |
 | `REDIS_PORT` | 6379 | |
 | `REDIS_PASSWORD` | (없음) | |
+
+---
+
+## (추가) web=3 항상 유지하기: keep-web3.sh
+
+07번 교안 48p 호기심 문제(`docker stop`으로 멈춘 web은 자동으로 살아나지 않음)를 해결하기 위해 추가한 감시 스크립트입니다.
+
+### 동작
+- 10초마다 실행 중인 web 개수를 세고, 3개보다 적으면 `docker compose up -d --scale web=3`으로 복구합니다.
+- healthcheck 상태가 `unhealthy`인 web은 재시작합니다.
+
+### 실행 방법
+```bash
+cd ~/devops/guestbook
+docker compose up -d --scale web=3   # web 3개 + nginx + redis 실행
+./keep-web3.sh                        # 감시 시작 (종료: Ctrl+C)
+```
+
+### 확인 방법
+```bash
+docker stop guestbook-web-2                                  # 다른 터미널에서 web 하나 멈추기
+docker compose ps --format "table {{.Name}}\t{{.Status}}"    # 10초쯤 뒤 web 3개 모두 Up이면 성공
+```
+
+### 한계
+- 점검 간격(10초) 동안은 web 2개로 운영됨
+- 스크립트가 꺼지면 아무도 지키지 않음
+- 컴퓨터 한 대 안에서만 동작함
