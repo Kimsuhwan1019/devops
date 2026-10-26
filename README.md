@@ -18,5 +18,5 @@
 - [5주차 - Docker 기초와 GitHub Issue 기반 작업](./week05/)
 - [6주차 - Dockerfile과 ghcr.io 배포](./week06/)
 - [7주차 - Docker Compose와 Redis, nginx](./week07/)
-- 8주차 - 중간평가 (수업 없음)
+- [8주차 - 중간평가 대체 프로젝트 (keep-web3.sh)](./guestbook/keep-web3.sh)
 - [9주차 - 쿠버네티스 첫 배포 (minikube)](./week09/)
