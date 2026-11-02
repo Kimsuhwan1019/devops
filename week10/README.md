@@ -80,7 +80,7 @@ devops/
 │   └── templates/index.html     # 제목에 v3 추가 (롤링 업데이트용 v3 이미지 빌드에 사용)
 └── week10/
     ├── README.md
-    └── images/                  # 실행 결과 캡처 6장
+    └── images/                  # 실행 결과 캡처 8장
 ```
 
 ## 실행 결과
@@ -105,7 +105,18 @@ devops/
 - `get svc` → `guestbook  NodePort  10.107.77.238  <none>  80:30080/TCP`
 - `describe svc` Endpoints `10.244.0.8:5000, 10.244.0.7:5000` = `get pods -o wide`의 Pod IP 2개와 일치
 - `minikube service` → `http://192.168.49.2:30080`(노드 주소)과 터널 주소 `http://127.0.0.1:35383` 표시
-- 브라우저 새로고침 시 Pod/Host가 `czt78` ↔ `hfvxp`로 바뀌고, 한쪽에만 글이 보임 (저장소 Memory → Pod마다 데이터가 따로)
+
+같은 주소(`127.0.0.1:35383`)에서 새로고침만 했는데 Pod/Host가 바뀌고, 글과 방문 수도 Pod마다 다르게 나왔다.
+서비스가 요청을 두 Pod에 번갈아 보내고, 저장소가 Memory라서 Pod마다 데이터를 따로 갖고 있기 때문이다.
+
+| 새로고침 | Pod/Host | 글 | 방문 |
+|---|---|---|---|
+| A | `guestbook-d676df554-czt78` | 홍길동 "벌써 10주차입니다!" | 1회 |
+| B | `guestbook-d676df554-hfvxp` | 없음 ("첫 번째 방문자가 되어주세요") | 2회 |
+
+![browser-pod-a](images/07-browser-pod-a.png)
+
+![browser-pod-b](images/08-browser-pod-b.png)
 
 **4. 스케일링과 로드밸런싱**
 
