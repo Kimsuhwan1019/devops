@@ -206,8 +206,6 @@ Pod에 문제가 생기면 바로 고치려 하지 말고, **get → describe �
 - **`kubectl get rs` → `localhost:8080 connection refused`**: 지난주 `minikube stop` 상태 그대로였음 → `minikube start`
 - **`minikube start` → `PROVIDER_DOCKER_VERSION_EXIT_1` (`/var/run/docker.sock` 없음)**: Docker Desktop을 안 켰음 → 켜고 `docker ps`로 연결부터 확인
 - **guestbook Pod `RESTARTS 1 (30m ago)`**: 에러가 아니라 minikube를 다시 켜면서 같은 Pod의 컨테이너가 한 번 재시작된 것. Pod 이름과 AGE(6d21h)는 그대로. liveness 실패로 오르는 RESTARTS와 구별해야 한다
-- **heredoc 붙여넣기가 반복됨**: 마지막 `EOF` 뒤에 Enter 없이 다시 붙여넣어 `EOFcat > ...`처럼 붙었고, 종료 신호로 인정되지 않아 입력이 계속 쌓였다. Ctrl+C로 빠져나와 `wc -l`로 보니 파일은 원본 그대로(cat이 실행되지 않음). 마지막 `EOF`는 빼고 붙여넣은 뒤 직접 쳐서 해결
-- **명령을 두 번 붙여넣음**: `kubectl get cm,secretkubectl get cm,secret` → `resource type "secretkubectl"` 에러. 깔끔한 캡처를 위해 `delete -f` 후 다시 `apply` (안 지우면 `unchanged`)
 - **교수님 zip의 deployment.yaml 이미지는 교수님 것**: `guestbook/k8s/`에 바로 풀면 내 이미지 설정을 덮어씀 → 저장소 밖(`~/week11-ref`)에 풀고 `diff`로 대조만 함
 - **CHANGE-CAUSE가 새 버전에 복사됨**: Deployment에 단 메모가 apply·restart·patch로 생긴 새 REVISION에 그대로 붙는다 → 매번 `annotate ... --overwrite`로 고침
 - **`kubectl edit` 후 파일과 클러스터가 달라짐**: 나중에 누가 `apply -f configmap.yaml`을 하면 초록으로 돌아간다 → 파일도 고쳐서 맞춤
