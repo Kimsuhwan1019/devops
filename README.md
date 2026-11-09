@@ -21,3 +21,4 @@
 - [8주차 - 중간평가 대체 프로젝트 (keep-web3.sh)](./guestbook/keep-web3.sh)
 - [9주차 - 쿠버네티스 첫 배포 (minikube)](./week09/)
 - [10주차 - 쿠버네티스 Deployment와 Service](./week10/)
+- [11주차 - ConfigMap, Secret, probe](./week11/)
