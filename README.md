@@ -22,3 +22,4 @@
 - [9주차 - 쿠버네티스 첫 배포 (minikube)](./week09/)
 - [10주차 - 쿠버네티스 Deployment와 Service](./week10/)
 - [11주차 - ConfigMap, Secret, probe](./week11/)
+- [12주차 - GitHub Actions CI](./week12/)
