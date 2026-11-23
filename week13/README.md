@@ -39,7 +39,8 @@ gh pr checks --watch                                               # 필수 검�
 
 # --- 모니터링 (수업 후) ---
 minikube addons enable metrics-server                              # kubectl top 에 필요한 메트릭 수집기
-kubectl top pods / kubectl top nodes                               # Pod·노드의 CPU(m)·메모리(Mi)
+kubectl top pods                                                   # Pod별 CPU(m)·메모리(Mi)
+kubectl top nodes                                                  # 노드 전체 CPU·메모리 사용률
 helm install monitoring prometheus-community/kube-prometheus-stack -n monitoring --create-namespace   # Prometheus+Grafana 한 번에
 kubectl run load --image=busybox --restart=Never -- sh -c "while true; do wget -q -O /dev/null http://guestbook/; done"   # 부하
 kubectl delete pod load                                            # 부하 정리 (안 지우면 계속 돎)
@@ -66,7 +67,7 @@ devops/
 │   └── k8s/deployment.yaml      # image :v2 → :522c239 (replicas 2 → 4 → 2)
 └── week13/
     ├── README.md
-    └── images/                  # 실행 결과 캡처 15장
+    └── images/                  # 실행 결과 캡처 20장
 ```
 
 ## 실행 결과
@@ -83,57 +84,81 @@ devops/
 
 ![](images/01-argocd-synced.png)
 
-**Git만 바꿔서 replicas 4**: `kubectl scale`을 치지 않았는데 Pod가 2개 늘었다
+**실습 1 · Git만 바꿔서 replicas 4**: `kubectl scale`을 치지 않았는데 Pod가 2개 늘었다
 
 ![](images/02-replicas-four.png)
 
-**손으로 10개로 바꾸면**: selfHeal이 **6초 만에** 늘어난 6개를 Terminating으로 돌리고, 다시 4개 · Synced
+**실습 2 · 손으로 10개로 바꾸면** ① 6개가 새로 만들어지기 시작했지만 ② selfHeal이 **6초 만에** 늘어난 6개를 Terminating으로 돌렸다
 
 ![](images/03-selfheal.png)
 
-**git revert로 롤백**: Pod 2개로 돌아오고, replicas 4 커밋(#36)과 되돌린 커밋(#37)이 둘 다 기록에 남았다
+③ 다시 Git에 적힌 4개 · Synced Healthy
 
-![](images/04-revert.png)
+![](images/04-selfheal-back4.png)
 
-**prune**: Git에 hello.yaml을 추가하자 ConfigMap이 생기고, `git rm` 후에는 클러스터에서도 사라졌다
+**실습 3 · git revert로 롤백**: Pod 2개 · Synced, replicas 4 커밋(#36)과 되돌린 커밋(#37)이 둘 다 기록에 남았다
 
-![](images/05-prune.png)
+![](images/05-revert-result.png)
 
-**이미지 배포 ① 코드 PR**: 검사 전에 머지하면 보호 규칙이 막는다 → 검사 통과 후 머지 → main CI ✓ → 태그 `522c239`
+**실습 4 · prune** ① Git에 hello.yaml을 머지하자 ConfigMap이 생겼다 (처음엔 3분 주기 전이라 NotFound)
 
-![](images/06-merge-blocked-tag.png)
+![](images/06-prune-added.png)
 
-**이미지 배포 ② 태그 PR**: 사람이 바꾼 건 `image:` 한 줄뿐
+② Git에서 `git rm`으로 지우고 머지하자 클러스터에서도 사라졌다 (`kubectl delete`를 치지 않음)
 
-![](images/07-image-diff.png)
+![](images/07-prune-deleted.png)
 
-**이미지 배포 ③ 롤링 업데이트**: 새 Pod가 1/1이 된 뒤에 옛 Pod가 하나씩 내려갔다
+**실습 5 · 이미지 배포** ① 코드 PR을 검사 전에 머지하면 보호 규칙이 막는다 → 검사 통과 후 머지
 
-![](images/08-rolling-update.png)
+![](images/08-merge-blocked.png)
 
-![](images/09-argocd-deploy.png)
+② main CI가 ✓가 된 것을 확인하고 이미지 태그(머지 커밋) `522c239` 확인
 
-![](images/10-browser-cicd.png)
+![](images/09-main-ci-tag.png)
+
+③ 태그 PR: 사람이 바꾼 건 `image:` 한 줄뿐
+
+![](images/10-image-diff.png)
+
+④ 롤링 업데이트: 새 Pod가 1/1이 된 뒤에 옛 Pod가 하나씩 내려갔다
+
+![](images/11-rolling-watch.png)
+
+⑤ 결과: 새 Pod 2개, 이미지 `:522c239`, Synced Healthy
+
+![](images/12-rolling-result.png)
+
+⑥ Argo CD 화면: `Synced to main(5edd3d9)`, Comment `배포: 522c239 (#41)`, 새 ReplicaSet의 Pod 2개
+
+![](images/13-argocd-deploy.png)
+
+⑦ 브라우저: 제목이 CI/CD로 바뀌었고, Pod/Host가 새 Pod 이름
+
+![](images/14-browser-cicd.png)
 
 **`kubectl top`** (수업 후 진행): guestbook CPU 1m / limits 500m, 메모리 27~36Mi / limits 128Mi
 
-![](images/11-kubectl-top.png)
+![](images/15-kubectl-top.png)
 
 **Grafana로 부하 관찰** (수업 후 진행): CPU가 requests(0.1)를 넘어 0.216, Requests 216% · Limits 43.2% · Throttling 0%
 
-![](images/12-grafana-load.png)
+![](images/16-grafana-load.png)
 
-**부하 걸기와 정리** (수업 후 진행): guestbook 1m → 약 245m, `delete pod load` 후 다시 1m
+**부하 걸기와 정리** (수업 후 진행): guestbook 1m → 약 245m(두 Pod에 거의 반씩), `delete pod load` 후 246m → 27m → 1m
 
-![](images/13-load-top.png)
+![](images/17-load-top.png)
 
-**로그** (수업 후 진행): Pod 이름을 붙여 보기, error 없음, 부하 요청 `GET /` 56,809줄
+**로그** (수업 후 진행) ① `--prefix`로 어느 Pod의 로그인지 표시
 
-![](images/14-logs.png)
+![](images/18-logs-prefix.png)
 
-**정리**: Application 등록을 해제해도 guestbook과 redis는 남는다
+② `deploy/`는 Pod 하나만, error 없음, 부하 요청 `GET /` 56,809줄이 남아 있음
 
-![](images/15-cleanup.png)
+![](images/19-logs-grep.png)
+
+**정리 (35p)**: Application 등록을 해제해도 guestbook과 redis는 남는다
+
+![](images/20-cleanup.png)
 
 ## 막혔던 부분
 - **Docker Desktop이 꺼져 있어서 `minikube start` 실패** (`PROVIDER_DOCKER_VERSION_EXIT_1`) → Docker Desktop 실행 후 `docker version`으로 연결 확인
