@@ -23,3 +23,4 @@
 - [10주차 - 쿠버네티스 Deployment와 Service](./week10/)
 - [11주차 - ConfigMap, Secret, probe](./week11/)
 - [12주차 - GitHub Actions CI](./week12/)
+- [13주차 - GitOps (Argo CD)](./week13/)
