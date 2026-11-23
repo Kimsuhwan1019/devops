@@ -80,7 +80,7 @@ devops/
 | #40 | `522c239` | 제목 CI/CD | CI가 이미지 `:522c239` 게시 |
 | #41 | `5edd3d9` | image 태그 :v2 → :522c239 | 롤링 업데이트 |
 
-**Argo CD 등록**: Healthy · Synced · Auto sync
+**Argo CD 등록**: Healthy · Synced · Auto sync (등록 직후라 기준 커밋은 12주차 마지막 머지 커밋 `59b574c`)
 
 ![](images/01-argocd-synced.png)
 
@@ -108,11 +108,11 @@ devops/
 
 ![](images/07-prune-deleted.png)
 
-**실습 5 · 이미지 배포** ① 코드 PR을 검사 전에 머지하면 보호 규칙이 막는다 → 검사 통과 후 머지
+**실습 5 · 이미지 배포** ① 코드 PR을 검사 전에 머지하면 보호 규칙이 막는다 (이후 `gh pr checks --watch`로 build ✓를 기다렸다가 머지)
 
 ![](images/08-merge-blocked.png)
 
-② main CI가 ✓가 된 것을 확인하고 이미지 태그(머지 커밋) `522c239` 확인
+② main CI가 진행 중(`*` 9s)에서 ✓(1m24s)가 될 때까지 기다리고, 이미지 태그(머지 커밋) `522c239` 확인
 
 ![](images/09-main-ci-tag.png)
 
@@ -132,19 +132,19 @@ devops/
 
 ![](images/13-argocd-deploy.png)
 
-⑦ 브라우저: 제목이 CI/CD로 바뀌었고, Pod/Host가 새 Pod 이름
+⑦ 브라우저: 제목이 CI/CD로 바뀌었고, 저장소는 Redis, Pod/Host는 새 Pod 이름
 
 ![](images/14-browser-cicd.png)
 
-**`kubectl top`** (수업 후 진행): guestbook CPU 1m / limits 500m, 메모리 27~36Mi / limits 128Mi
+**`kubectl top`** (수업 후 진행): metrics-server가 준비되기 전엔 `Metrics API not available` → 82초 뒤 1/1이 되자 조회됨. guestbook CPU 1m / limits 500m, 메모리 27~36Mi / limits 128Mi, 노드 메모리 26%
 
 ![](images/15-kubectl-top.png)
 
-**Grafana로 부하 관찰** (수업 후 진행): CPU가 requests(0.1)를 넘어 0.216, Requests 216% · Limits 43.2% · Throttling 0%
+**Grafana로 부하 관찰** (수업 후 진행): Pod 하나(`2w8l4`) 기준, CPU가 requests(0.1)를 넘어 0.216, Requests 216% · Limits 43.2% · Throttling 0%
 
 ![](images/16-grafana-load.png)
 
-**부하 걸기와 정리** (수업 후 진행): guestbook 1m → 약 245m(두 Pod에 거의 반씩), `delete pod load` 후 246m → 27m → 1m
+**부하 걸기와 정리** (수업 후 진행): guestbook 1m → 약 245m(두 Pod에 거의 반씩), `delete pod load` → NotFound 확인 후 246m → 27m → 1m
 
 ![](images/17-load-top.png)
 
@@ -156,7 +156,7 @@ devops/
 
 ![](images/19-logs-grep.png)
 
-**정리 (35p)**: Application 등록을 해제해도 guestbook과 redis는 남는다
+**정리 (35p)**: 모니터링 스택(helm)을 먼저 삭제하고, Application 등록을 해제해도 guestbook과 redis는 남는다
 
 ![](images/20-cleanup.png)
 
