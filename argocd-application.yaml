@@ -1,0 +1,18 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: guestbook
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/Kimsuhwan1019/devops.git
+    targetRevision: main
+    path: guestbook/k8s # YAML 적용
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: default
+  syncPolicy:
+    automated:
+      prune: true # Git에서 지우면 삭제
+      selfHeal: true # 손으로 바꾸면 원복
